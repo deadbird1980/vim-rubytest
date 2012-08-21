@@ -8,6 +8,21 @@ if exists("rubytest_loaded")
 endif
 let rubytest_loaded = 1
 
+function s:FindSpec()
+  " find the installed rspec command
+  let l:default_cmd = ""
+  call system("spec")
+  if v:shell_error==0
+    let l:default_cmd = "spec"
+  elseif executable("rspec")==1
+    let l:default_cmd = "rspec"
+  end
+  return default_cmd
+endfunction
+
+if !exists("g:rubytest_spec_cmd")
+  let g:rubytest_spec_cmd = s:FindSpec()
+endif
 if !exists("g:rubytest_in_quickfix")
   let g:rubytest_in_quickfix = 0
 endif
@@ -21,10 +36,10 @@ if !exists("g:rubytest_cmd_testcase")
   let g:rubytest_cmd_testcase = "ruby %p -n '/%c/'"
 endif
 if !exists("g:rubytest_cmd_spec")
-  let g:rubytest_cmd_spec = "rspec %p"
+  let g:rubytest_cmd_spec = g:rubytest_spec_cmd . " %p"
 endif
 if !exists("g:rubytest_cmd_example")
-  let g:rubytest_cmd_example = "rspec %p -l %c"
+  let g:rubytest_cmd_example = g:rubytest_spec_cmd . " %p -l %c"
 endif
 if !exists("g:rubytest_cmd_feature")
   let g:rubytest_cmd_feature = "cucumber %p"
@@ -179,13 +194,13 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 if !hasmapto('<Plug>RubyTestRun')
-  map <unique> <Leader>t <Plug>RubyTestRun
+  map <unique> <Leader>ru <Plug>RubyTestRun
 endif
 if !hasmapto('<Plug>RubyFileRun')
-  map <unique> <Leader>T <Plug>RubyFileRun
+  map <unique> <Leader>rf <Plug>RubyFileRun
 endif
 if !hasmapto('<Plug>RubyTestRunLast')
-  map <unique> <Leader>l <Plug>RubyTestRunLast
+  map <unique> <Leader>rl <Plug>RubyTestRunLast
 endif
 
 function s:IsRubyTest()
